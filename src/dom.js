@@ -1,7 +1,13 @@
 import { columnsTable } from "./config.js";
 import { toDoList, toDoFactory, sampleToDo } from "./todo.js"
 const dom = (function () {
-    function createTable() {
+    function refreshTable() {
+
+        const oldTable = document.querySelector("table");
+        if(oldTable) {
+        oldTable.remove();
+    }
+
         const table = document.createElement("table");
         const caption = document.createElement("caption");
         const headerRow = document.createElement("tr");
@@ -12,6 +18,8 @@ const dom = (function () {
             column.textContent = columnName;
             headerColumns.push(column);
         });
+        const buttonsColumn = document.createElement("th");
+        headerColumns.push(buttonsColumn);
 
         console.log(toDoList);
         headerRow.append(...headerColumns);
@@ -33,14 +41,14 @@ const dom = (function () {
         const saveButton = document.createElement("button");
         saveButton.textContent = "Save";
         saveButton.setAttribute("id", "saveButton")
-        saveButton.addEventListener("click", () => { 
+        saveButton.addEventListener("click", () => {
             const newToDo = getToDoFromInput();
             toDoList.push(newToDo);
             createRow(newToDo);
             const table = document.querySelector("table");
             table.appendChild(createRow(newToDo));
             deleteForm();
-            
+
         });
 
         const descriptionInput = document.createElement("input");
@@ -67,12 +75,12 @@ const dom = (function () {
         topFormRow.append(...headerColumns);
 
         bottomFormRow.append(bottomRowCell);
-        
+
         createForm.append(topFormRow, bottomFormRow);
         return createForm;
     }
 
-    function getToDoFromInput () {
+    function getToDoFromInput() {
         let dataObj = {};
         columnsTable.forEach((property) => {
             const inputData = document.querySelector(`#${property}`);
@@ -87,7 +95,7 @@ const dom = (function () {
         return newToDo;
     }
 
-    function deleteForm () {
+    function deleteForm() {
         const form = document.querySelector(".createForm");
         form.remove();
     }
@@ -102,11 +110,53 @@ const dom = (function () {
             row.appendChild(singleCell);
         });
 
+        //create buttons
+        const buttonsCell = document.createElement("td");
+
+        const completedButton = document.createElement("button");
+        completedButton.setAttribute("id", "completedButton");
+        completedButton.setAttribute("data-id", toDo.getId());
+        console.log(toDo.title);
+        completedButton.textContent = "completed";
+        completedButton.addEventListener("click", elem => callChangeCompleted(elem));
+        buttonsCell.appendChild(completedButton);
+
+        const deleteButton = document.createElement("button");
+        deleteButton.setAttribute("id", "deleteButton");
+        deleteButton.setAttribute("data-id", toDo.getId());
+        deleteButton.textContent = "delete";
+        deleteButton.addEventListener("click", elem => deleteToDo(elem));
+        buttonsCell.appendChild(deleteButton);
+
+        row.appendChild(buttonsCell);
+
         return row;
     }
 
+    function callChangeCompleted(elem) {
+        const id = elem.target.getAttribute("data-id");
+        const toDo = toDoList.find(toDo => {
+            return toDo.getId() == id;
+        });
+        toDo.toggleCompleted();
+        const container = document.querySelector(".container");
+        container.append(dom.refreshTable());
+    }
 
-    return { createTable, createToDoForm };
+    function deleteToDo(elem) {
+        const id = elem.target.getAttribute("data-id");
+        
+
+        const index = toDoList.findIndex(toDo => {
+            return toDo.getId() == id;
+        });
+        console.log(index);
+        toDoList.splice(index, 1);
+        const container = document.querySelector(".container");
+        container.append(dom.refreshTable());
+    }
+
+    return { refreshTable, createToDoForm };
 })();
 
 

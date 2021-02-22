@@ -9,7 +9,7 @@ toDoList.push(newTaskTwo);
 console.log(dom);
 
 const container = document.querySelector(".container");
-container.append(dom.createTable());
+container.append(dom.refreshTable());
 
 const newToDoButton = document.querySelector("#createNewToDo");
 newToDoButton.addEventListener("click", () => {
@@ -17,5 +17,7 @@ newToDoButton.addEventListener("click", () => {
     const formCreate = dom.createToDoForm();
     table.appendChild(formCreate);
 });
+
+console.log(toDoList);
 
 
