@@ -23,6 +23,7 @@ function toDoFactory (title, dueDate, description = "") {
     return {title, description, dueDate, priority, finished, getId, toggleCompleted}
 }
 
+
 const sampleToDo = toDoFactory("test", "test", "test");
 
 

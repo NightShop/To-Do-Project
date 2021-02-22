@@ -2,12 +2,15 @@ import { toDoFactory, toDoList } from "./todo.js";
 import { dom } from "./dom.js";
 
 const newTask = toDoFactory("get groceries", "02/05/2021", "in mercator");
+newTask.category = "coding";
 const newTaskTwo = toDoFactory("get cable", "05/08/2021", "in merkur");
-toDoList.push(newTask);
-toDoList.push(newTaskTwo);
+newTaskTwo.category = "social";
+const newTaskThree = toDoFactory("get sweets", "55/58/2023", "in gmajna");
+newTaskThree.category = "social";
+console.log(newTask);
 
-console.log(dom);
-
+let toDoListy = JSON.parse(localStorage.getItem("toDoList"));
+console.log(toDoListy);
 const container = document.querySelector(".container");
 container.append(dom.refreshTable());
 
@@ -18,6 +21,27 @@ newToDoButton.addEventListener("click", () => {
     table.appendChild(formCreate);
 });
 
-console.log(toDoList);
+const codingFilterButton = document.querySelector("#coding");
+codingFilterButton.addEventListener("click", () => {
+    container.append(dom.refreshTable("coding"));
+});
+
+const sportFilterButton = document.querySelector("#sport");
+sportFilterButton.addEventListener("click", () => {
+    container.append(dom.refreshTable("sport"));
+});
+
+const socialFilterButton = document.querySelector("#social");
+socialFilterButton.addEventListener("click", () => {
+    container.append(dom.refreshTable("social"));
+});
+
+const allFilterButton = document.querySelector("#all");
+allFilterButton.addEventListener("click", () => {
+    container.append(dom.refreshTable());
+});
+
+
+
 
 

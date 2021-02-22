@@ -3,7 +3,7 @@ const columnsTable = [
     "finished",
     "title",
     "dueDate",
-    "priority"
+    "category"
 ]
 
 export {columnsTable};
