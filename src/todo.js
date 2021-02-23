@@ -24,8 +24,27 @@ function toDoFactory (title, dueDate, description = "") {
 }
 
 
+function setLocalStorage(toDoList) {
+    localStorage.setItem("toDoList", JSON.stringify(toDoList));
+}
+
+function parseLocalStorage() {
+    let tempToDo = JSON.parse(localStorage.getItem("toDoList"));
+    let newToDoList = [];
+    tempToDo.forEach(toDo => {
+        let newToDo = toDoFactory();
+        
+        for(const [key, value] of Object.entries(toDo)) {
+            newToDo[key] = value;
+        }
+        newToDoList.push(newToDo);
+    });
+    console.log(newToDoList);
+    return newToDoList;
+}
+
 const sampleToDo = toDoFactory("test", "test", "test");
 
 
 let toDoList = [];
-export {toDoFactory, toDoList, sampleToDo};
+export {toDoFactory, toDoList, setLocalStorage, parseLocalStorage};

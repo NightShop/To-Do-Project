@@ -1,16 +1,30 @@
-import { toDoFactory, toDoList } from "./todo.js";
+import { toDoFactory, toDoList, setLocalStorage, parseLocalStorage } from "./todo.js";
 import { dom } from "./dom.js";
 
-const newTask = toDoFactory("get groceries", "02/05/2021", "in mercator");
+/* const newTask = toDoFactory("get groceries", "02/05/2021", "in mercator");
 newTask.category = "coding";
 const newTaskTwo = toDoFactory("get cable", "05/08/2021", "in merkur");
 newTaskTwo.category = "social";
 const newTaskThree = toDoFactory("get sweets", "55/58/2023", "in gmajna");
 newTaskThree.category = "social";
-console.log(newTask);
 
-let toDoListy = JSON.parse(localStorage.getItem("toDoList"));
-console.log(toDoListy);
+ toDoList.push(newTask);
+toDoList.push(newTaskTwo);
+toDoList.push(newTaskThree);
+
+setLocalStorage(toDoList); */
+
+window.addEventListener("beforeunload", () => {
+    setLocalStorage(toDoList);
+    return false;
+});
+
+
+
+
+
+toDoList.push(...parseLocalStorage());
+
 const container = document.querySelector(".container");
 container.append(dom.refreshTable());
 
