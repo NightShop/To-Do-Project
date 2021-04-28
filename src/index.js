@@ -1,5 +1,6 @@
-import { toDoFactory, toDoList, setLocalStorage, parseLocalStorage } from "./todo.js";
+import { toDoList, setLocalStorage, parseCloudStorage, toDoFactory } from "./todo.js";
 import { dom } from "./dom.js";
+
 
 /* const newTask = toDoFactory("get groceries", "02/05/2021", "in mercator");
 newTask.category = "coding";
@@ -12,21 +13,24 @@ newTaskThree.category = "social";
 toDoList.push(newTaskTwo);
 toDoList.push(newTaskThree);
 
-setLocalStorage(toDoList); */
+setLocalStorage(toDoList); */ 
 
 window.addEventListener("beforeunload", () => {
-    setLocalStorage(toDoList);
     return false;
 });
 
 
 
-
-
-toDoList.push(...parseLocalStorage());
-
 const container = document.querySelector(".container");
-container.append(dom.refreshTable());
+
+parseCloudStorage().then(list => {
+    console.log("im in parse then");
+    console.log("im push", list);
+    return list;
+    
+})
+.then(list => container.append(dom.refreshTable(list)));
+
 
 const newToDoButton = document.querySelector("#createNewToDo");
 newToDoButton.addEventListener("click", () => {
@@ -54,8 +58,4 @@ const allFilterButton = document.querySelector("#all");
 allFilterButton.addEventListener("click", () => {
     container.append(dom.refreshTable());
 });
-
-
-
-
 

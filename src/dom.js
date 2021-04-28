@@ -1,14 +1,17 @@
-import { id } from "date-fns/locale";
 import { columnsTable } from "./config.js";
-import { toDoList, toDoFactory, sampleToDo } from "./todo.js"
+import { toDoFactory, saveToCloud, getToDoFromCloud } from "./todo.js"
+import uniqid from "uniqid";
 const dom = (function () {
-    function refreshTable(category = "") {
+
+
+    function refreshTable(toDoList, category = "") {
         const oldTable = document.querySelector("table");
         if (oldTable) {
-            oldTable.remove();
+            oldTable.remove()
         }
-
+        console.log("im in refresh table", Object.values(toDoList));
         let filteredToDoList = [...toDoList];
+        console.log("filtered", filteredToDoList);
 
         if (category != "") {
             let categoryFilter = category;
@@ -40,9 +43,6 @@ const dom = (function () {
     function createToDoForm(toDoId = "") {
         const createForm = document.createElement("tbody");
         createForm.classList.add("createForm");
-        createForm.setAttribute("data-id", toDoId);
-
-        let toDo = "";
 
         const topFormRow = document.createElement("tr");
         const bottomFormRow = document.createElement("tr");
@@ -51,6 +51,7 @@ const dom = (function () {
         descriptionInput.setAttribute("id", "descriptionInput");
         descriptionInput.defaultValue = "enter description";
 
+        let toDo;
 
         const headerColumns = [];
 
@@ -58,35 +59,42 @@ const dom = (function () {
 
         if (toDoId != "") {
 
-            toDo = toDoList.find(toDo => toDo.getId() == toDoId);
+            getToDoFromCloud(toDoId).then(toDo => {
+            console.log(toDo);
             descriptionInput.value = toDo.description;
 
             columnsTable.forEach(element => {
-                const column = document.createElement("th");
+                const column = document.createElement("td");
                 const inputField = document.createElement("input");
                 inputField.setAttribute("id", element);
                 inputField.defaultValue = toDo[element];
                 column.appendChild(inputField);
                 headerColumns.push(column);
             });
-
+            for(let i = headerColumns.length - 1; i >= 0; i --) {
+                topFormRow.insertBefore(headerColumns[i], topFormRow.firstChild)
+            }
+            return toDo
+        }).then(toDo => saveToCloud(toDo));
 
         }
 
         else {
             columnsTable.forEach(element => {
-                const column = document.createElement("th");
+                const column = document.createElement("td");
                 const inputField = document.createElement("input");
                 inputField.setAttribute("id", element);
                 inputField.defaultValue = element;
                 column.appendChild(inputField);
                 headerColumns.push(column);
             });
+            topFormRow.append(...headerColumns);
         }
+
+
 
         const saveButton = document.createElement("button");
         saveButton.textContent = "Save";
-        saveButton.setAttribute("data-id", saveButton.parentElement)
         saveButton.setAttribute("id", "saveButton")
         saveButton.addEventListener("click", () => {
 
@@ -98,10 +106,12 @@ const dom = (function () {
             if (toDo != "") {
                 const nextSiblingg = document.querySelector(".createForm").nextElementSibling;
                 table.insertBefore(newRow, nextSiblingg);
+                saveToCloud(newToDo);
             }
             else {
                 table.appendChild(newRow);
-                toDoList.push(newToDo);
+                console.log("im saving to cloud", newToDo);
+                saveToCloud(newToDo);
             }
             deleteForm();
         });
@@ -111,10 +121,10 @@ const dom = (function () {
         bottomRowCell.setAttribute("colspan", `${columnsTable.length}`);
         bottomRowCell.append(descriptionInput);
 
-        topFormRow.append(...headerColumns, saveButton);
 
+
+        topFormRow.append(saveButton);
         bottomFormRow.append(bottomRowCell);
-
         createForm.append(topFormRow, bottomFormRow);
         return createForm;
     }
@@ -134,7 +144,8 @@ const dom = (function () {
         dataObj["description"] = description.value;
         console.log(dataObj["category"]);
         let newToDo;
-        if (toDoList.some(toDo => toDo.getId() == id)) {
+        /* toDoList.some(toDo => toDo.getId() == id) */
+        if (false) {
             newToDo = toDoList.find(toDo => toDo.getId() == id);
             newToDo.title = dataObj["title"];
             newToDo.description = dataObj["description"];
@@ -142,8 +153,9 @@ const dom = (function () {
             newToDo.category = dataObj["category"];
         }
         else {
-            newToDo = toDoFactory(dataObj["title"], dataObj["dueDate"], dataObj["description"]);
+            newToDo = toDoFactory(uniqid(), dataObj["title"], dataObj["dueDate"], dataObj["description"]);
             newToDo.category = dataObj["category"];
+
         }
 
 
@@ -161,6 +173,7 @@ const dom = (function () {
 
     function createRow(toDo) {
         const row = document.createElement("tr");
+        console.log("im todoooo", toDo.getId());
         row.setAttribute("id", toDo.getId());
         columnsTable.forEach(columnName => {
             const singleCell = document.createElement("td");
