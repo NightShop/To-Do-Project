@@ -60,6 +60,7 @@ async function parseCloudStorage() {
 
 function saveToCloud(toDo) {
     const id = toDo.getId();
+    console.log("im in save to cloud, this is id", id);
     db.collection("toDos").doc(id).set({
         description: toDo.description,
         dueDate: toDo.dueDate,
@@ -67,6 +68,10 @@ function saveToCloud(toDo) {
         priority: toDo.priority,
         title: toDo.title,
     });
+}
+
+function deleteToDoCloud(toDoId) {
+    db.collection("toDos").doc(toDoId).delete();
 }
 
 async function getToDoFromCloud(id) {
@@ -80,4 +85,4 @@ async function getToDoFromCloud(id) {
     });
 }
 
-export { toDoFactory, parseCloudStorage, saveToCloud, getToDoFromCloud };
+export { toDoFactory, parseCloudStorage, saveToCloud, getToDoFromCloud, deleteToDoCloud };

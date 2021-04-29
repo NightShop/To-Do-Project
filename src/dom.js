@@ -1,5 +1,5 @@
 import { columnsTable } from "./config.js";
-import { toDoFactory, saveToCloud, getToDoFromCloud } from "./todo.js"
+import { toDoFactory, saveToCloud, getToDoFromCloud, deleteToDoCloud } from "./todo.js"
 import uniqid from "uniqid";
 const dom = (function () {
 
@@ -9,9 +9,7 @@ const dom = (function () {
         if (oldTable) {
             oldTable.remove()
         }
-        console.log("im in refresh table", Object.values(toDoList));
         let filteredToDoList = [...toDoList];
-        console.log("filtered", filteredToDoList);
 
         if (category != "") {
             let categoryFilter = category;
@@ -51,31 +49,28 @@ const dom = (function () {
         descriptionInput.setAttribute("id", "descriptionInput");
         descriptionInput.defaultValue = "enter description";
 
-        let toDo;
 
         const headerColumns = [];
 
-
+        let toDo;
 
         if (toDoId != "") {
-
             getToDoFromCloud(toDoId).then(toDo => {
-            console.log(toDo);
-            descriptionInput.value = toDo.description;
+                descriptionInput.value = toDo.description;
 
-            columnsTable.forEach(element => {
-                const column = document.createElement("td");
-                const inputField = document.createElement("input");
-                inputField.setAttribute("id", element);
-                inputField.defaultValue = toDo[element];
-                column.appendChild(inputField);
-                headerColumns.push(column);
-            });
-            for(let i = headerColumns.length - 1; i >= 0; i --) {
-                topFormRow.insertBefore(headerColumns[i], topFormRow.firstChild)
-            }
-            return toDo
-        }).then(toDo => saveToCloud(toDo));
+                columnsTable.forEach(element => {
+                    const column = document.createElement("td");
+                    const inputField = document.createElement("input");
+                    inputField.setAttribute("id", element);
+                    inputField.defaultValue = toDo[element];
+                    column.appendChild(inputField);
+                    headerColumns.push(column);
+                });
+                for (let i = headerColumns.length - 1; i >= 0; i--) {
+                    topFormRow.insertBefore(headerColumns[i], topFormRow.firstChild)
+                }
+                return toDo
+            }).then(toDoData => toDo = toDoData);
 
         }
 
@@ -103,14 +98,13 @@ const dom = (function () {
             const table = document.querySelector("table");
             const newRow = createRow(newToDo);
 
-            if (toDo != "") {
+            if (toDo != undefined) {
                 const nextSiblingg = document.querySelector(".createForm").nextElementSibling;
                 table.insertBefore(newRow, nextSiblingg);
                 saveToCloud(newToDo);
             }
             else {
                 table.appendChild(newRow);
-                console.log("im saving to cloud", newToDo);
                 saveToCloud(newToDo);
             }
             deleteForm();
@@ -142,7 +136,6 @@ const dom = (function () {
 
         let description = document.querySelector("#descriptionInput");
         dataObj["description"] = description.value;
-        console.log(dataObj["category"]);
         let newToDo;
         /* toDoList.some(toDo => toDo.getId() == id) */
         if (false) {
@@ -173,7 +166,6 @@ const dom = (function () {
 
     function createRow(toDo) {
         const row = document.createElement("tr");
-        console.log("im todoooo", toDo.getId());
         row.setAttribute("id", toDo.getId());
         columnsTable.forEach(columnName => {
             const singleCell = document.createElement("td");
@@ -195,7 +187,10 @@ const dom = (function () {
         deleteButton.setAttribute("id", "deleteButton");
         deleteButton.setAttribute("data-id", toDo.getId());
         deleteButton.textContent = "delete";
-        deleteButton.addEventListener("click", elem => deleteToDo(elem));
+        deleteButton.addEventListener("click", elem => {
+            deleteToDo(elem);
+            deleteToDoCloud(toDo.getId());
+        });
         buttonsCell.appendChild(deleteButton);
 
         const editButton = document.createElement("button");
@@ -238,10 +233,7 @@ const dom = (function () {
         const id = elem.target.getAttribute("data-id");
 
 
-        const index = toDoList.findIndex(toDo => {
-            return toDo.getId() == id;
-        });
-        toDoList.splice(index, 1);
+        
         const container = document.querySelector(".container");
         container.append(dom.refreshTable());
     }
