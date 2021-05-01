@@ -8,6 +8,28 @@
  -->
     <link rel="stylesheet" type="text/css" href="style.css">
     <link rel="icon" href="favicon.ico">
+
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/8.4.3/firebase-app.js"></script>
+
+<!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+     <script src="https://www.gstatic.com/firebasejs/8.4.3/firebase-auth.js"></script>
+     <script src="https://www.gstatic.com/firebasejs/8.4.3/firebase-firestore.js"></script>
+
+<script>
+  // Your web app's Firebase configuration
+  var firebaseConfig = {
+    apiKey: "AIzaSyDZa30_Gm9gIayy9dBkFKZalL1Nq-W1sso",
+    authDomain: "to-do-list-exercise-93187.firebaseapp.com",
+    projectId: "to-do-list-exercise-93187",
+    storageBucket: "to-do-list-exercise-93187.appspot.com",
+    messagingSenderId: "179254968178",
+    appId: "1:179254968178:web:34d372e20bbd00e711e7eb"
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+</script>
 </head>
 
 <body>
@@ -20,16 +42,7 @@
         <button id="all">all</button>
     </div>
 </body>
-<script src="main.js"></script>
-
-<!-- The core Firebase JS SDK is always required and must be listed first -->
-<!-- <script src="/__/firebase/8.4.2/firebase-app.js"></script>
- -->
-<!-- TODO: Add SDKs for Firebase products that you want to use
-     https://firebase.google.com/docs/web/setup#available-libraries -->
+<script src="main.js" deter></script>
 
 
-<!-- Initialize Firebase -->
-<!-- <script src="/__/firebase/init.js"></script>
- -->
 </html>
