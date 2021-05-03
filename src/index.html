@@ -29,6 +29,7 @@
 
 <body>
     <h1>To Do List</h1>
+    <div><span>User is loged in:</span><span id="userLogedIndicator"></span></div>
     <div class="container">
         <button id="createNewToDo">Create New
         </button>
@@ -36,7 +37,42 @@
         <button id="sport">sport filter</button>
         <button id="social">social filter</button>
         <button id="all">all</button>
+        <button id="signOutButton">Sign Out</button>
     </div>
+    <table id="toDosTable">
+      <thead>
+        <tr>
+          <th>
+            To Do
+          </th>
+          <th>
+            Due Date
+          </th>
+          <th>
+            Category
+          </th>
+          <th>
+            Completed
+          </th>
+        </tr>
+      </thead>
+      <tbody id="toDosRows">
+        <tr>
+          <td>
+            Test 123
+          </td>
+          <td>
+            22/05/2021
+          </td>
+          <td>
+            Coding
+          </td>
+          <td>
+            False
+          </td>
+        </tr>
+      </tbody>
+    </table>
     <div id="signInForm"></div>
 </body>
 
