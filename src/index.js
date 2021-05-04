@@ -2,6 +2,8 @@ import "./style.css"
 
 const body = document.querySelector("body");
 
+let toDosRef;
+let unsubscribe;
 
 //login form
 const signInForm = document.getElementById("signInForm");
@@ -13,22 +15,6 @@ signInForm.appendChild(usernameInput);
 const passwordInput = document.createElement("input");
 passwordInput.id = "loginPasswordInput"
 signInForm.appendChild(passwordInput);
-
-/* THIS IS FOR TESTING
-//testing username
-const usernameUpdateInput = document.createElement("input");
-usernameUpdateInput.id = "loginusernameUpdate"
-const updateUsernameButton = document.createElement("button");
-updateUsernameButton.textContent = "Update Username";
-updateUsernameButton.onclick = () => {
-    updateUsername(usernameUpdateInput.value);
-}
-const updateDiv = document.createElement("div");
-updateDiv.appendChild(usernameUpdateInput);
-updateDiv.appendChild(updateUsernameButton);
-body.appendChild(updateDiv);
- */
-
 
 const signInButton = document.createElement("button");
 signInButton.id = "signInButton";
@@ -49,6 +35,61 @@ signInWithGoogleButton.onclick = () => {
 }
 signInForm.appendChild(signInWithGoogleButton);
 
+//CreateToDoForm manipulations
+const createToDoFormSection = document.getElementById("createToDoForm");
+
+const showCreateToDoForm = document.getElementById("showNewToDoForm");
+showCreateToDoForm.onclick = (ev) => {
+    ev.preventDefault();
+    createToDoFormSection.hidden = false;
+}
+
+const closeCreateToDoForm = document.getElementById("closeNewToDo");
+closeCreateToDoForm.onclick = (ev) => {
+    ev.preventDefault();
+    toDoTitleInput.value = "";
+    dueDateInput.value = "";
+    categoryInput.value = "";
+    createToDoFormSection.hidden = true;
+}
+
+const toDoTitleInput = document.getElementById("toDoTitle");
+const dueDateInput = document.getElementById("dueDateInput");
+const categoryInput = document.getElementById("categoryInput");
+
+const saveToDoButton = document.getElementById("saveToDo");
+saveToDoButton.onclick = (ev) => {
+    ev.preventDefault();
+    if (firebase.auth().currentUser) {
+        toDosRef.add({
+            uid: firebase.auth().currentUser.uid,
+            title: toDoTitleInput.value,
+            dueDate: dueDateInput.value,
+            category: categoryInput.value,
+        })
+    }
+
+    toDoTitleInput.value = "";
+    dueDateInput.value = "";
+    categoryInput.value = "";
+}
+
+/* THIS IS FOR TESTING
+//testing username
+const usernameUpdateInput = document.createElement("input");
+usernameUpdateInput.id = "loginusernameUpdate"
+const updateUsernameButton = document.createElement("button");
+updateUsernameButton.textContent = "Update Username";
+updateUsernameButton.onclick = () => {
+    updateUsername(usernameUpdateInput.value);
+}
+const updateDiv = document.createElement("div");
+updateDiv.appendChild(usernameUpdateInput);
+updateDiv.appendChild(updateUsernameButton);
+body.appendChild(updateDiv);
+ */
+
+
 
 
 
@@ -65,6 +106,7 @@ const toDosTable = document.getElementById("toDosTable");
 const userLogedIndicator = document.getElementById("userLogedIndicator");
 userLogedIndicator.textContent = "false";
 const signOutButton = document.getElementById("signOutButton");
+const toDoRows = document.getElementById("toDosRows");
 
 
 signOutButton.onclick = () => {
@@ -78,12 +120,49 @@ function authorizeUser(email, password) {
 
 }
 
+function createRowElement(title, dueDate, category) {
+    const row = document.createElement("tr");
+
+    const titleElement = document.createElement("td");
+    titleElement.textContent = title;
+    row.appendChild(titleElement);
+    
+    const dueDateElement = document.createElement("td");
+    dueDateElement.textContent = dueDate;
+    row.appendChild(dueDateElement);
+
+    const categoryElement = document.createElement("td");
+    categoryElement.textContent = category;
+    row.appendChild(categoryElement);
+
+    const completedElement = document.createElement("td");
+    completedElement.textContent = "false";
+    row.appendChild(completedElement);
+
+    return row;
+}
+
 
 firebase.auth().onAuthStateChanged((user) => {
     if (user) {
+
+
         toDosTable.hidden = false;
         signInForm.hidden = true;
         userLogedIndicator.textContent = user.displayName;
+        toDosRef = firebase.firestore().collection("toDos");
+
+        unsubscribe = toDosRef
+            .where("uid", "==", user.uid)
+            .onSnapshot(querySnapshot => {
+                toDoRows.innerHTML = "";
+                querySnapshot.docs.forEach(doc => {
+                    toDoRows.appendChild(createRowElement(doc.data().title, doc.data().dueDate, doc.data().category));
+                })
+
+                
+
+            })
     } else {
         userLogedIndicator.textContent = "false";
         toDosTable.hidden = true;
