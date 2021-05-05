@@ -2,7 +2,8 @@ import "./style.css"
 
 const body = document.querySelector("body");
 
-let toDosRef;
+let toDosRef = firebase.firestore().collection("toDos");
+
 let unsubscribe;
 
 //login form
@@ -51,54 +52,120 @@ closeCreateToDoForm.onclick = (ev) => {
     dueDateInput.value = "";
     categoryInput.value = "";
     createToDoFormSection.hidden = true;
+    toDoIDInput.value = "";
 }
 
 const toDoTitleInput = document.getElementById("toDoTitle");
 const dueDateInput = document.getElementById("dueDateInput");
 const categoryInput = document.getElementById("categoryInput");
+const toDoIDInput = document.getElementById("toDoUpdateID");
 
 const saveToDoButton = document.getElementById("saveToDo");
 saveToDoButton.onclick = (ev) => {
     ev.preventDefault();
-    if (firebase.auth().currentUser) {
-        toDosRef.add({
-            uid: firebase.auth().currentUser.uid,
-            title: toDoTitleInput.value,
-            dueDate: dueDateInput.value,
-            category: categoryInput.value,
-        })
-    }
+    saveToFirebase();
 
     toDoTitleInput.value = "";
     dueDateInput.value = "";
     categoryInput.value = "";
 }
 
-/* THIS IS FOR TESTING
-//testing username
-const usernameUpdateInput = document.createElement("input");
-usernameUpdateInput.id = "loginusernameUpdate"
-const updateUsernameButton = document.createElement("button");
-updateUsernameButton.textContent = "Update Username";
-updateUsernameButton.onclick = () => {
-    updateUsername(usernameUpdateInput.value);
+const saveToFirebase = () => {
+    if (firebase.auth().currentUser) {
+        const id = toDoIDInput.value;
+        if (id === "") {
+            toDosRef.add({
+                uid: firebase.auth().currentUser.uid,
+                title: toDoTitleInput.value,
+                dueDate: dueDateInput.value,
+                category: categoryInput.value,
+                completed: false,
+            });
+        } else {
+            toDosRef.doc(id).update({
+                uid: firebase.auth().currentUser.uid,
+                title: toDoTitleInput.value,
+                dueDate: dueDateInput.value,
+                category: categoryInput.value,
+            })
+            toDoIDInput.value = "";
+            saveToDoButton.textContent = "Add";
+        }
+    }
+
 }
-const updateDiv = document.createElement("div");
-updateDiv.appendChild(usernameUpdateInput);
-updateDiv.appendChild(updateUsernameButton);
-body.appendChild(updateDiv);
- */
+
+
+//filter manipulations
+const filterIndicator = document.getElementById("filterIndicator");
+const allFilterButton = document.getElementById("allFilter");
+const codingFilterButton = document.getElementById("codingFilter");
+const sportFilterButton = document.getElementById("sportFilter");
+const socialFilterButton = document.getElementById("socialFilter");
+
+allFilterButton.addEventListener("click", (ev) => changeFilter(ev));
+codingFilterButton.addEventListener("click", (ev) => changeFilter(ev));
+sportFilterButton.addEventListener("click", (ev) => changeFilter(ev));
+socialFilterButton.addEventListener("click", (ev) => changeFilter(ev));
+
+const changeFilter = (ev) => {
+    const filterString = ev.target.id.slice(0, -6);
+    filterIndicator.setAttribute("data-id", filterString);
+    filterIndicator.textContent = filterString[0].toUpperCase() + filterString.slice(1);
+    const user = firebase.auth().currentUser;
+    if (filterString != "all") {
+        if (user) {
+            toDosRef
+                .where("uid", "==", user.uid)
+                .where("category", "==", filterString)
+                .get().then(querySnapshot => {
+                    toDoRows.innerHTML = "";
+                    querySnapshot.docs.forEach(doc => {
+                        const newRow = createRowElement(doc.data().title, doc.data().dueDate, doc.data().category, doc.data().completed, doc.id);
+                        const filter = filterIndicator.getAttribute("data-id");
+                        console.log(filter);
+                        newRow.onclick = () => {
+                            const isCompleted = !doc.data().completed
+                            toDosRef.doc(doc.id).update({
+                                completed: isCompleted,
+                            })
+                        }
+                        toDoRows.appendChild(
+                            newRow
+                        );
+                    })
 
 
 
+                })
+        }
+    } else {
+        if (user) {
+            toDosRef
+                .where("uid", "==", user.uid)
+                .get().then(querySnapshot => {
+                    toDoRows.innerHTML = "";
+                    querySnapshot.docs.forEach(doc => {
+                        const newRow = createRowElement(doc.data().title, doc.data().dueDate, doc.data().category, doc.data().completed, doc.id);
+                        const filter = filterIndicator.getAttribute("data-id");
+                        console.log(filter);
+                        newRow.onclick = () => {
+                            const isCompleted = !doc.data().completed
+                            toDosRef.doc(doc.id).update({
+                                completed: isCompleted,
+                            })
+                        }
+                        toDoRows.appendChild(
+                            newRow
+                        );
+                    })
 
 
-//test button
-const testButton = document.createElement("button");
-testButton.textContent = "Test"
-testButton.onclick = () => {
+
+                })
+        }
+    }
 }
-signInForm.appendChild(testButton);
 
 
 //selected dom elements
@@ -120,13 +187,14 @@ function authorizeUser(email, password) {
 
 }
 
-function createRowElement(title, dueDate, category) {
+function createRowElement(title, dueDate, category, completed, id) {
     const row = document.createElement("tr");
+    row.setAttribute("data-id", id);
 
     const titleElement = document.createElement("td");
     titleElement.textContent = title;
     row.appendChild(titleElement);
-    
+
     const dueDateElement = document.createElement("td");
     dueDateElement.textContent = dueDate;
     row.appendChild(dueDateElement);
@@ -136,37 +204,82 @@ function createRowElement(title, dueDate, category) {
     row.appendChild(categoryElement);
 
     const completedElement = document.createElement("td");
-    completedElement.textContent = "false";
+    completedElement.textContent = completed;
     row.appendChild(completedElement);
 
+    const trashButton = document.createElement("td");
+    trashButton.innerHTML = '<i class="fa fa-trash" aria-hidden="true"></i>';
+    trashButton.onclick = (ev) => {
+        ev.stopPropagation();
+        console.log("just before delete  ", id);
+        toDosRef.doc(id).delete();
+    }
+    row.appendChild(trashButton);
+
+    const editButton = document.createElement("td");
+    editButton.innerHTML = '<i class="fa fa-pencil" aria-hidden="true"></i>';
+    editButton.onclick = (ev) => {
+        ev.stopPropagation();
+        createToDoFormSection.hidden = false;
+        fillAddForm(title, dueDate, category, id);
+    }
+    row.appendChild(editButton);
+
+
     return row;
+}
+
+function fillAddForm(title, dueDate, category, id) {
+    toDoTitleInput.value = title;
+    dueDateInput.value = dueDate;
+    categoryInput.value = category;
+    saveToDoButton.textContent = "Update";
+    toDoIDInput.value = id;
+
 }
 
 
 firebase.auth().onAuthStateChanged((user) => {
     if (user) {
-
-
         toDosTable.hidden = false;
         signInForm.hidden = true;
         userLogedIndicator.textContent = user.displayName;
-        toDosRef = firebase.firestore().collection("toDos");
-
         unsubscribe = toDosRef
-            .where("uid", "==", user.uid)
-            .onSnapshot(querySnapshot => {
-                toDoRows.innerHTML = "";
-                querySnapshot.docs.forEach(doc => {
-                    toDoRows.appendChild(createRowElement(doc.data().title, doc.data().dueDate, doc.data().category));
+        .where("uid", "==", user.uid)
+        .onSnapshot(querySnapshot => {
+            
+            toDoRows.innerHTML = "";
+            querySnapshot.docs.forEach(doc => {
+                    const filterString = filterIndicator.getAttribute("data-id");
+                    const newRow = createRowElement(doc.data().title, doc.data().dueDate, doc.data().category, doc.data().completed, doc.id);
+                    newRow.onclick = () => {
+                        const isCompleted = !doc.data().completed
+                        toDosRef.doc(doc.id).update({
+                            completed: isCompleted,
+                        })
+                    }
+                    console.log("im here", filterString);
+                    if (filterString == "all") {
+                        console.log("ime here 2")
+                        toDoRows.appendChild(newRow);
+                    }
+                    else if(filterString == doc.data().category) {
+                        console.log("ime here 3")
+                        toDoRows.appendChild(newRow);
+                    }
+
                 })
 
-                
+
 
             })
+
+
     } else {
         userLogedIndicator.textContent = "false";
         toDosTable.hidden = true;
         signInForm.hidden = false;
+        unsubscribe && unsubscribe();
     }
 })
 
