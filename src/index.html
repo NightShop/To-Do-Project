@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8">
-  <title>DOM-1</title>
+  <title>To Do</title>
   <!-- The core Firebase JS SDK is always required and must be listed first -->
   <script src="https://www.gstatic.com/firebasejs/8.4.3/firebase-app.js"></script>
 
@@ -28,6 +28,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css"
     integrity="sha512-5A8nwdMOWrSz20fDsjczgUidUBR8liPYU+WymTZP1lmY9G6Oc7HlZv156XqnsgNUzTyMefFTcsFH/tnJE/+xBg=="
     crossorigin="anonymous" />
+    <link rel="apple-touch-icon" sizes="128x128" href="favicon.ico">
 </head>
 
 <body>
@@ -83,22 +84,22 @@
       <input id="toDoUpdateID" hidden=true>
       <div class="inputGroup">
         <label for="toDoTitle">Content:</label>
-        <input id="toDoTitle">
+        <input id="toDoTitle" required>
       </div>
       <div class="inputGroup">
         <label for="dueDateInput">Due Date:</label>
-        <input id="dueDateInput">
+        <input id="dueDateInput" type="date">
       </div>
       <div class="inputGroup">
         <label for="categoryInput">Category:</label>
         <select id="categoryInput">
-          <option value="default">Default</option>
+          <option value="default" selected>Default</option>
           <option value="coding">Coding</option>
           <option value="sport">Sport</option>
           <option value="social">Social</option>
         </select>
       </div>
-      <button id="saveToDo">Add</button>
+      <button type="submit" id="saveToDo">Add</button>
       <button id="closeNewToDo">Close</button>
     </form>
   </section>

@@ -1,6 +1,5 @@
 import "./style.css"
-
-const body = document.querySelector("body");
+import { format } from 'date-fns';
 
 let toDosRef = firebase.firestore().collection("toDos");
 
@@ -62,12 +61,15 @@ const toDoIDInput = document.getElementById("toDoUpdateID");
 
 const saveToDoButton = document.getElementById("saveToDo");
 saveToDoButton.onclick = (ev) => {
-    ev.preventDefault();
-    saveToFirebase();
-
-    toDoTitleInput.value = "";
-    dueDateInput.value = "";
-    categoryInput.value = "";
+    if (ev.target.parentElement.checkValidity()) {
+        ev.preventDefault();
+        console.log(dueDateInput.value)
+        saveToFirebase();
+        toDoIDInput.value = "";
+        toDoTitleInput.value = "";
+        dueDateInput.value = "";
+        categoryInput.value = "";
+    }
 }
 
 const saveToFirebase = () => {
@@ -80,6 +82,7 @@ const saveToFirebase = () => {
                 dueDate: dueDateInput.value,
                 category: categoryInput.value,
                 completed: false,
+                createdAt: Date.now(),
             });
         } else {
             toDosRef.doc(id).update({
@@ -87,6 +90,8 @@ const saveToFirebase = () => {
                 title: toDoTitleInput.value,
                 dueDate: dueDateInput.value,
                 category: categoryInput.value,
+                completed: false,
+                createdAt: Date.now(),
             })
             toDoIDInput.value = "";
             saveToDoButton.textContent = "Add";
@@ -118,6 +123,8 @@ const changeFilter = (ev) => {
             toDosRef
                 .where("uid", "==", user.uid)
                 .where("category", "==", filterString)
+                .orderBy("completed")
+                .orderBy("createdAt", "desc")
                 .get().then(querySnapshot => {
                     toDoRows.innerHTML = "";
                     querySnapshot.docs.forEach(doc => {
@@ -125,10 +132,12 @@ const changeFilter = (ev) => {
                         const filter = filterIndicator.getAttribute("data-id");
                         console.log(filter);
                         newRow.onclick = () => {
-                            const isCompleted = !doc.data().completed
+                            const isCompleted = !doc.data().completed;
                             toDosRef.doc(doc.id).update({
                                 completed: isCompleted,
                             })
+
+                            console.log("in on click filter");
                         }
                         toDoRows.appendChild(
                             newRow
@@ -143,6 +152,8 @@ const changeFilter = (ev) => {
         if (user) {
             toDosRef
                 .where("uid", "==", user.uid)
+                .orderBy("completed")
+                .orderBy("createdAt", "desc")
                 .get().then(querySnapshot => {
                     toDoRows.innerHTML = "";
                     querySnapshot.docs.forEach(doc => {
@@ -150,10 +161,12 @@ const changeFilter = (ev) => {
                         const filter = filterIndicator.getAttribute("data-id");
                         console.log(filter);
                         newRow.onclick = () => {
-                            const isCompleted = !doc.data().completed
+                            const isCompleted = !doc.data().completed;
                             toDosRef.doc(doc.id).update({
                                 completed: isCompleted,
                             })
+
+                            console.log("in on click filter");
                         }
                         toDoRows.appendChild(
                             newRow
@@ -189,14 +202,23 @@ function authorizeUser(email, password) {
 
 function createRowElement(title, dueDate, category, completed, id) {
     const row = document.createElement("tr");
+    completed ? row.classList.add("completed") : row.classList.remove("completed");
     row.setAttribute("data-id", id);
 
     const titleElement = document.createElement("td");
     titleElement.textContent = title;
     row.appendChild(titleElement);
 
+    let formatedDate;
     const dueDateElement = document.createElement("td");
-    dueDateElement.textContent = dueDate;
+    if (dueDate != "") {
+        const dueDateElement = document.createElement("td");
+        const dates = dueDate.split("-");
+        dates[1] = parseInt(dates[1], 10) - 1;
+        formatedDate = format(new Date(dates[0], dates[1], dates[2]), "dd-MMM");
+        console.log(dueDateElement);
+    }
+    dueDateElement.textContent = formatedDate;
     row.appendChild(dueDateElement);
 
     const categoryElement = document.createElement("td");
@@ -211,8 +233,12 @@ function createRowElement(title, dueDate, category, completed, id) {
     trashButton.innerHTML = '<i class="fa fa-trash" aria-hidden="true"></i>';
     trashButton.onclick = (ev) => {
         ev.stopPropagation();
-        console.log("just before delete  ", id);
         toDosRef.doc(id).delete();
+        toDoIDInput.value = "";
+        toDoTitleInput.value = "";
+        dueDateInput.value = "";
+        categoryInput.value = "";
+
     }
     row.appendChild(trashButton);
 
@@ -245,11 +271,13 @@ firebase.auth().onAuthStateChanged((user) => {
         signInForm.hidden = true;
         userLogedIndicator.textContent = user.displayName;
         unsubscribe = toDosRef
-        .where("uid", "==", user.uid)
-        .onSnapshot(querySnapshot => {
-            
-            toDoRows.innerHTML = "";
-            querySnapshot.docs.forEach(doc => {
+            .where("uid", "==", user.uid)
+            .orderBy("completed")
+            .orderBy("createdAt", "desc")
+            .onSnapshot(querySnapshot => {
+
+                toDoRows.innerHTML = "";
+                querySnapshot.docs.forEach(doc => {
                     const filterString = filterIndicator.getAttribute("data-id");
                     const newRow = createRowElement(doc.data().title, doc.data().dueDate, doc.data().category, doc.data().completed, doc.id);
                     newRow.onclick = () => {
@@ -260,11 +288,9 @@ firebase.auth().onAuthStateChanged((user) => {
                     }
                     console.log("im here", filterString);
                     if (filterString == "all") {
-                        console.log("ime here 2")
                         toDoRows.appendChild(newRow);
                     }
-                    else if(filterString == doc.data().category) {
-                        console.log("ime here 3")
+                    else if (filterString == doc.data().category) {
                         toDoRows.appendChild(newRow);
                     }
 
