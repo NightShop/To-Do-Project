@@ -28,23 +28,23 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css"
     integrity="sha512-5A8nwdMOWrSz20fDsjczgUidUBR8liPYU+WymTZP1lmY9G6Oc7HlZv156XqnsgNUzTyMefFTcsFH/tnJE/+xBg=="
     crossorigin="anonymous" />
-    <link rel="apple-touch-icon" sizes="128x128" href="favicon.ico">
+  <link rel="apple-touch-icon" sizes="128x128" href="favicon.ico">
 </head>
 
 <body>
-  <h1>To Do List</h1>
-  <div><span>User is loged in:</span><span id="userLogedIndicator"></span></div>
+  <h1>FOR A GREAT DAY</h1>
+  <div id="userIndicator"><span>User is loged in:</span><span id="userLogedIndicator"></span></div>
+  <div id="filterIndicator" data-id="all">All</div>
   <div class="container">
-    <div id="filterIndicator" data-id="all">All</div>
     <button id="allFilter">All</button>
-    <button id="codingFilter">Coding filter</button>
-    <button id="sportFilter">Sport filter</button>
-    <button id="socialFilter">Social filter</button>
+    <button id="codingFilter">Coding</button>
+    <button id="sportFilter">Sport</button>
+    <button id="socialFilter">Social</button>
     <button id="signOutButton">Sign Out</button>
   </div>
   <table id="toDosTable" hidden="true">
     <thead>
-      <tr>
+      <tr class="header-row">
         <th>
           To Do
         </th>
@@ -54,7 +54,7 @@
         <th>
           Category
         </th>
-        <th>
+        <th hidden="true">
           Completed
         </th>
       </tr>
@@ -83,15 +83,15 @@
       <h4>Add To Do</h4>
       <input id="toDoUpdateID" hidden=true>
       <div class="inputGroup">
-        <label for="toDoTitle">Content:</label>
-        <input id="toDoTitle" required>
+        <label for="toDoTitle">CONTENT:</label>
+        <input id="toDoTitle" autocomplete="off" maxlength="15" required>
       </div>
       <div class="inputGroup">
-        <label for="dueDateInput">Due Date:</label>
-        <input id="dueDateInput" type="date">
+        <label for="dueDateInput">DUE DATE:</label>
+        <input id="dueDateInput" autocomplete="off" type="date">
       </div>
       <div class="inputGroup">
-        <label for="categoryInput">Category:</label>
+        <label for="categoryInput">CATEGORY:</label>
         <select id="categoryInput">
           <option value="default" selected>Default</option>
           <option value="coding">Coding</option>

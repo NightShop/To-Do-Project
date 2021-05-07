@@ -3,7 +3,6 @@
 }
 
 #toDosTable, th, td {
-    border: 1px solid black;
     border-collapse: collapse;
     padding: 5px;
 }
@@ -19,7 +18,7 @@
     background-color: grey;
 }
 
-.completed::after {
+/* .completed::after {
     position: absolute;
     left: 0;
     top: 50%;
@@ -28,6 +27,10 @@
     content: "";
     width: 100%;
     display: block;
+} */
+
+.td-completed {
+    display: none;
 }
 
 @media only screen 
@@ -35,22 +38,122 @@
   and (max-device-width: 480px)
   and (-webkit-min-device-pixel-ratio: 2) {
     body {
-        font-size: 30px;
+        font-size: 40px;
+        background-color:  #272727;
+        font-weight: 900;
+        font-family: Arial, Helvetica, sans-serif;
+
     }
+/* 
+    #283350
+    #F93800
+    #FFB500
+ */
     button {
         margin: 10px;
         padding: 0 30px;
         height: 100px;
-        border: 5px solid black;
-        font-size: 30px;
+        border: 5px solid #b3461e;
+        font-size: 40px;
+        background-color: #ff652f;
+        font-weight: 700;
+        border-radius: 10px;
     }
     #filterIndicator {
+        width: 80px;
+        height: 80px;
+        display: block;
+        border: none; 
+        color:#F4B41A;
+        margin: 0px auto;
+        margin-top: 70px;
+        font-size: 40px;     
+    }
+    table {
+        font-size: 40px;
+        width: 100%;
+    }
+    td, th {
+        padding: 20px 10px;
+        text-align: center;
+    }
+    .table-button {
+        font-size: 60px;
+    }
+    .header-row {
+        display: none;
+    }
+    h1 {
+        text-align: center;
+        color:#FFE400;
+    }
+    #userIndicator {
         display: flex;
         align-items: center;
         justify-content: center;
-        height: 80px;
         padding: 0 50px;
         margin: 20px auto;
-        width: 150px;
+        color: #F4B41A
     }
+
+    tr:nth-child(even) {
+        background-color: #108355;
+    }
+
+    tr:nth-child(odd) {
+        background-color: #11bd78;
+    }
+
+    .container{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    #showNewToDoForm {
+        margin: 20px auto;
+        width: 100%;
+    }
+
+    form {
+        color : #FFE400;
+        font-size: 45px;
+
+    }
+
+    input {
+        font-family: inherit;
+        font-size: inherit;
+        font-weight: inherit;
+        padding: 10px 0;
+        background-color: #F4B41A;
+        color:#272727;
+    }
+
+    .inputGroup {
+        margin-bottom: 50px;
+        border-bottom: 4px solid #F4B41A;
+    }
+
+    select {
+        font-size: inherit;
+        font-weight: inherit;
+        margin: 0px 20px;
+        background-color: #F4B41A;
+        color:#272727;
+    }
+
+    input[type=date]{
+        color: #272727;
+    }
+
+    tr.completed {
+        background-color:#747474;
+    }
+
+    h4 {
+        text-decoration: underline;
+        text-align: center;
+    }
+
   }

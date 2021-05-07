@@ -42,6 +42,7 @@ const showCreateToDoForm = document.getElementById("showNewToDoForm");
 showCreateToDoForm.onclick = (ev) => {
     ev.preventDefault();
     createToDoFormSection.hidden = false;
+    toDoTitleInput.focus();
 }
 
 const closeCreateToDoForm = document.getElementById("closeNewToDo");
@@ -61,9 +62,10 @@ const toDoIDInput = document.getElementById("toDoUpdateID");
 
 const saveToDoButton = document.getElementById("saveToDo");
 saveToDoButton.onclick = (ev) => {
+    console.log(ev.target.parentElement.checkValidity());
     if (ev.target.parentElement.checkValidity()) {
         ev.preventDefault();
-        console.log(dueDateInput.value)
+
         saveToFirebase();
         toDoIDInput.value = "";
         toDoTitleInput.value = "";
@@ -216,7 +218,6 @@ function createRowElement(title, dueDate, category, completed, id) {
         const dates = dueDate.split("-");
         dates[1] = parseInt(dates[1], 10) - 1;
         formatedDate = format(new Date(dates[0], dates[1], dates[2]), "dd-MMM");
-        console.log(dueDateElement);
     }
     dueDateElement.textContent = formatedDate;
     row.appendChild(dueDateElement);
@@ -227,6 +228,7 @@ function createRowElement(title, dueDate, category, completed, id) {
 
     const completedElement = document.createElement("td");
     completedElement.textContent = completed;
+    completedElement.classList.add("td-completed");
     row.appendChild(completedElement);
 
     const trashButton = document.createElement("td");
@@ -238,8 +240,8 @@ function createRowElement(title, dueDate, category, completed, id) {
         toDoTitleInput.value = "";
         dueDateInput.value = "";
         categoryInput.value = "";
-
     }
+    trashButton.classList.add("table-button");
     row.appendChild(trashButton);
 
     const editButton = document.createElement("td");
@@ -249,6 +251,7 @@ function createRowElement(title, dueDate, category, completed, id) {
         createToDoFormSection.hidden = false;
         fillAddForm(title, dueDate, category, id);
     }
+    editButton.classList.add("table-button")
     row.appendChild(editButton);
 
 
@@ -286,7 +289,6 @@ firebase.auth().onAuthStateChanged((user) => {
                             completed: isCompleted,
                         })
                     }
-                    console.log("im here", filterString);
                     if (filterString == "all") {
                         toDoRows.appendChild(newRow);
                     }
